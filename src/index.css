@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-neutral-200;
+  }
+
+  body {
+    @apply bg-neutral-50 text-neutral-900 dark:bg-dark-bg dark:text-dark-text;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Scrollbar styles - Teenage Engineering inspired */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-orange rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-orange/80;
+  }
+
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Teenage Engineering brutalist shadows */
+  .shadow-te-brutal {
+    box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+  }
+
+  .shadow-te-brutal-sm {
+    box-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
+  }
+
+  .shadow-te-brutal-lg {
+    box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+  }
+
+  /* Duolingo-style card elevation */
+  .card-duo {
+    border-bottom: 4px solid rgba(0,0,0,0.1);
+  }
+
+  /* Strava-style performance card */
+  .card-strava {
+    background: linear-gradient(135deg, #FC4C02 0%, #FF6B35 100%);
+  }
+}
+
+@layer components {
+  /* Button variants */
+  .btn-te {
+    @apply font-display font-bold uppercase tracking-wider px-6 py-3 rounded-lg shadow-te transition-all;
+    @apply hover:translate-x-1 hover:translate-y-1 hover:shadow-te-sm;
+    @apply active:translate-x-2 active:translate-y-2 active:shadow-none;
+  }
+
+  .btn-duo {
+    @apply font-bold px-6 py-4 rounded-2xl shadow-duo;
+    @apply hover:brightness-110 active:translate-y-1 active:shadow-none;
+    @apply transition-all duration-150;
+  }
+}
