@@ -166,6 +166,42 @@ class LocalStorageService implements IStorageService {
     },
 
     create: async (data: ParsedNote): Promise<Note> => {
+      const mergeInfo = this.extractMergeInfo(data);
+      if (mergeInfo) {
+        const existingNotes = await db.notes.toArray();
+        const existing = existingNotes.find(
+          (n) => n.title?.trim().toLowerCase() === mergeInfo.bucketTitle.toLowerCase()
+        );
+
+        const escapedEntry = this.escapeHtml(mergeInfo.entry);
+        const entryMarkup = `<div>• ${escapedEntry}</div>`;
+
+        if (existing) {
+          const baseContent =
+            typeof existing.content === 'string'
+              ? existing.content
+              : JSON.stringify(existing.content);
+          const newContent = baseContent?.trim()
+            ? `${baseContent}${baseContent.trim().endsWith('<br />') ? '' : '<br />'}${entryMarkup}`
+            : entryMarkup;
+
+          await db.notes.update(existing.id, {
+            content: newContent,
+            updatedAt: new Date(),
+          });
+          const updated = await db.notes.get(existing.id);
+          if (!updated) throw new Error('Note not found after merge');
+          return updated;
+        }
+
+        // Create a starter list note when none exists yet
+        data = {
+          ...data,
+          title: mergeInfo.bucketTitle,
+          content: entryMarkup,
+        };
+      }
+
       const note: Note = {
         id: this.generateId(),
         userId: this.defaultUserId,
@@ -240,6 +276,19 @@ class LocalStorageService implements IStorageService {
       await db.transactions.delete(id);
     },
   };
+
+  private escapeHtml = (text: string) =>
+    text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  private extractMergeInfo(note: ParsedNote) {
+    const source = (note.title || note.content || '').trim();
+    const match = source.match(/^(.+?)(?::|-)\s*(.+)$/);
+    if (!match) return null;
+    const bucketTitle = match[1].trim();
+    const entry = match[2].trim();
+    if (!bucketTitle || !entry) return null;
+    return { bucketTitle, entry };
+  }
 
   settings = {
     get: async (): Promise<UserSettings | undefined> => {

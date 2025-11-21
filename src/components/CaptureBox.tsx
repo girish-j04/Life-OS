@@ -257,7 +257,7 @@ export function CaptureBox({ onSuccess }: CaptureBoxProps) {
                 handleSubmit();
               }
             }}
-            placeholder="Type anything... ✨ AI will organize it"
+            placeholder="Type anything..."
             className="h-16 px-4 md:px-6 md:pr-60 pr-4 text-lg font-medium border-0 bg-transparent dark:text-dark-text focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-neutral-400 dark:placeholder:text-dark-subtext"
             disabled={loading || isListening}
           />

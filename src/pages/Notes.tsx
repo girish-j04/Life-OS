@@ -23,6 +23,7 @@ export function Notes() {
   const [loading, setLoading] = useState(true);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [editContent, setEditContent] = useState('');
+  const [activeNote, setActiveNote] = useState<Note | null>(null);
 
   const loadNotes = async () => {
     try {
@@ -72,6 +73,25 @@ export function Notes() {
       await loadNotes();
     } catch (error) {
       console.error('Failed to update note:', error);
+    }
+  };
+
+  const openNote = (note: Note) => {
+    setActiveNote(note);
+  };
+
+  const closeNote = () => setActiveNote(null);
+
+  const escapeHtml = (text: string) =>
+    text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const renderNoteContent = (note: Note) => {
+    if (typeof note.content === 'string') return note.content;
+    try {
+      const json = JSON.stringify(note.content, null, 2);
+      return `<pre>${escapeHtml(json)}</pre>`;
+    } catch {
+      return `<pre>${escapeHtml(String(note.content))}</pre>`;
     }
   };
 
@@ -169,7 +189,10 @@ export function Notes() {
                     exit={{ opacity: 0, x: -100 }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <Card className="hover:border-primary-purple transition-colors border-l-4 border-l-primary-orange">
+                    <Card
+                      className="hover:border-primary-purple transition-colors border-l-4 border-l-primary-orange cursor-pointer"
+                      onClick={() => openNote(note)}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="space-y-2 flex-1">
@@ -177,20 +200,9 @@ export function Notes() {
                             <div
                               className="text-sm text-neutral-600 dark:text-dark-subtext line-clamp-2 prose prose-sm max-w-none dark:prose-invert"
                               dangerouslySetInnerHTML={{
-                                __html: typeof note.content === 'string' ? note.content : JSON.stringify(note.content)
+                                __html: renderNoteContent(note)
                               }}
                             />
-                            {note.photoUrl && (
-                              <div className="pt-2">
-                                <PhotoPreview
-                                  src={note.photoUrl}
-                                  alt={`Attachment for ${note.title}`}
-                                  className="w-full sm:w-48"
-                                  thumbnailClassName="h-32 w-full sm:w-48"
-                                  label="Note"
-                                />
-                              </div>
-                            )}
                             {note.photoUrl && (
                               <div className="pt-2">
                                 <PhotoPreview
@@ -222,7 +234,7 @@ export function Notes() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleEditNote(note)}
+                              onClick={(e) => { e.stopPropagation(); handleEditNote(note); }}
                               className="h-8 w-8 flex-shrink-0 text-neutral-400 hover:text-primary-blue hover:bg-primary-blue/10 transition-colors"
                             >
                               <Edit3 className="h-4 w-4" />
@@ -230,7 +242,7 @@ export function Notes() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleTogglePin(note)}
+                              onClick={(e) => { e.stopPropagation(); handleTogglePin(note); }}
                               className="h-8 w-8 flex-shrink-0 text-primary-orange hover:text-primary-orange/80 hover:bg-primary-orange/10"
                             >
                               <Pin className="h-4 w-4 fill-current" />
@@ -238,7 +250,7 @@ export function Notes() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleDelete(note.id)}
+                              onClick={(e) => { e.stopPropagation(); handleDelete(note.id); }}
                               className="h-8 w-8 flex-shrink-0 text-neutral-400 hover:text-primary-red hover:bg-primary-red/10 transition-colors"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -266,7 +278,10 @@ export function Notes() {
                     exit={{ opacity: 0, x: -100 }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <Card className="hover:border-primary-purple transition-colors">
+                    <Card
+                      className="hover:border-primary-purple transition-colors cursor-pointer"
+                      onClick={() => openNote(note)}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="space-y-2 flex-1">
@@ -274,7 +289,7 @@ export function Notes() {
                             <div
                               className="text-sm text-neutral-600 dark:text-dark-subtext line-clamp-2 prose prose-sm max-w-none dark:prose-invert"
                               dangerouslySetInnerHTML={{
-                                __html: typeof note.content === 'string' ? note.content : JSON.stringify(note.content)
+                                __html: renderNoteContent(note)
                               }}
                             />
                             {note.tags && note.tags.length > 0 && (
@@ -297,7 +312,7 @@ export function Notes() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleEditNote(note)}
+                              onClick={(e) => { e.stopPropagation(); handleEditNote(note); }}
                               className="h-8 w-8 flex-shrink-0 text-neutral-400 hover:text-primary-blue hover:bg-primary-blue/10 transition-colors"
                             >
                               <Edit3 className="h-4 w-4" />
@@ -305,7 +320,7 @@ export function Notes() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleTogglePin(note)}
+                              onClick={(e) => { e.stopPropagation(); handleTogglePin(note); }}
                               className="h-8 w-8 flex-shrink-0 text-neutral-400 hover:text-primary-orange hover:bg-primary-orange/10"
                             >
                               <PinOff className="h-4 w-4" />
@@ -313,7 +328,7 @@ export function Notes() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleDelete(note.id)}
+                              onClick={(e) => { e.stopPropagation(); handleDelete(note.id); }}
                               className="h-8 w-8 flex-shrink-0 text-neutral-400 hover:text-primary-red hover:bg-primary-red/10 transition-colors"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -329,6 +344,66 @@ export function Notes() {
           </>
         )}
       </div>
+
+      {/* View Note Dialog */}
+      <Dialog open={!!activeNote} onOpenChange={(open: boolean) => !open && closeNote()}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-neutral-900 dark:text-dark-text flex items-center justify-between gap-3">
+              <span>{activeNote?.title}</span>
+              {activeNote && (
+                <span className="text-xs font-mono text-neutral-500 dark:text-dark-subtext">
+                  {format(activeNote.updatedAt, 'MMM d, yyyy h:mm a')}
+                </span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          {activeNote && (
+            <div className="space-y-4">
+              {activeNote.photoUrl && (
+                <PhotoPreview
+                  src={activeNote.photoUrl}
+                  alt={`Attachment for ${activeNote.title}`}
+                  className="w-full"
+                  thumbnailClassName="h-64 w-full"
+                />
+              )}
+              <div
+                className="prose prose-sm max-w-none dark:prose-invert text-neutral-800 dark:text-dark-text"
+                dangerouslySetInnerHTML={{ __html: renderNoteContent(activeNote) }}
+              />
+              {activeNote.tags && activeNote.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {activeNote.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 text-xs rounded-lg bg-primary-purple/10 text-primary-purple font-mono"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={closeNote}>
+                  Close
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (!activeNote) return;
+                    closeNote();
+                    handleEditNote(activeNote);
+                  }}
+                  className="bg-primary-purple text-white"
+                >
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Note Dialog */}
       <Dialog open={!!editingNote} onOpenChange={(open: boolean) => !open && setEditingNote(null)}>

@@ -213,6 +213,46 @@ export class SupabaseStorageService implements IStorageService {
 
     create: async (noteData: ParsedNote): Promise<Note> => {
       const userId = await this.getUserId();
+      const mergeInfo = this.extractMergeInfo(noteData);
+      if (mergeInfo) {
+        const { data: existingNotes, error: existingError } = await supabase
+          .from('notes')
+          .select('*')
+          .eq('user_id', userId)
+          .ilike('title', mergeInfo.bucketTitle)
+          .limit(1);
+        if (existingError) throw existingError;
+        const existingNote = existingNotes?.[0];
+
+        const escapedEntry = this.escapeHtml(mergeInfo.entry);
+        const entryMarkup = `<div>• ${escapedEntry}</div>`;
+
+        if (existingNote) {
+          const baseContent =
+            typeof existingNote.content === 'string'
+              ? existingNote.content
+              : JSON.stringify(existingNote.content);
+          const newContent = baseContent?.trim()
+            ? `${baseContent}${baseContent.trim().endsWith('<br />') ? '' : '<br />'}${entryMarkup}`
+            : entryMarkup;
+
+          const { data: updated, error: updateError } = await supabase
+            .from('notes')
+            .update({ content: newContent })
+            .eq('id', existingNote.id)
+            .select()
+            .single();
+          if (updateError) throw updateError;
+          return this.mapNoteFromDB(updated);
+        }
+
+        noteData = {
+          ...noteData,
+          title: mergeInfo.bucketTitle,
+          content: entryMarkup,
+        };
+      }
+
       const note = {
         id: this.generateId(),
         user_id: userId,
@@ -524,5 +564,19 @@ export class SupabaseStorageService implements IStorageService {
       throw error;
     }
     return data;
+  }
+
+  private escapeHtml(text: string) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  private extractMergeInfo(note: ParsedNote) {
+    const source = (note.title || note.content || '').trim();
+    const match = source.match(/^(.+?)(?::|-)\s*(.+)$/);
+    if (!match) return null;
+    const bucketTitle = match[1].trim();
+    const entry = match[2].trim();
+    if (!bucketTitle || !entry) return null;
+    return { bucketTitle, entry };
   }
 }

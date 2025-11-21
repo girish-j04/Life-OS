@@ -81,7 +81,7 @@ export function ResearchDossierPanel() {
           <div>
             <CardTitle>AI Research Dossiers</CardTitle>
             <CardDescription>
-              Spin up briefing notes for any topic. Summaries, actionable next steps, and trusted references — all inside LifeOS.
+              Spin up briefing notes for any topic. Summaries, actionable next steps, and trusted references all inside LifeOS.
             </CardDescription>
           </div>
         </div>

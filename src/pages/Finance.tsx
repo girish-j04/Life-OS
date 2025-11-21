@@ -3,7 +3,7 @@ import { storage } from '@/lib/storage';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Wallet, TrendingDown, TrendingUp, RefreshCw, Settings, X, BarChart3, ChevronDown, ChevronUp } from 'lucide-react';
+import { Wallet, TrendingDown, TrendingUp, RefreshCw, Settings, X, BarChart3, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, isWithinInterval, subMonths, eachDayOfInterval } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Area, AreaChart } from 'recharts';
@@ -13,6 +13,7 @@ import { PhotoPreview } from '@/components/PhotoPreview';
 export function Finance() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [monthlyBudget, setMonthlyBudget] = useState<number>(0);
   const [showBudgetInput, setShowBudgetInput] = useState(false);
   const [budgetInputValue, setBudgetInputValue] = useState('');
@@ -40,6 +41,22 @@ export function Finance() {
   useEffect(() => {
     loadTransactions();
   }, []);
+
+  const handleDeleteTransaction = async (id: string) => {
+    const confirmed = window.confirm('Delete this transaction? This cannot be undone.');
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(id);
+      await storage.transactions.delete(id);
+      setTransactions((prev) => prev.filter((t) => t.id !== id));
+    } catch (error) {
+      console.error('Failed to delete transaction:', error);
+      alert('Could not delete the transaction. Please try again.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const saveBudget = async () => {
     const budget = parseFloat(budgetInputValue);
@@ -674,7 +691,7 @@ export function Finance() {
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 w-full md:w-auto justify-end md:ml-auto">
                       {transaction.photoUrl && (
                         <div className="hidden md:block">
                           <PhotoPreview
@@ -686,8 +703,20 @@ export function Finance() {
                           />
                         </div>
                       )}
-                      <div className={`text-2xl font-bold ${transaction.type === 'income' ? 'text-primary-green' : 'text-primary-red'}`}>
-                        {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                      <div className="flex items-center gap-3">
+                        <div className={`text-2xl font-bold ${transaction.type === 'income' ? 'text-primary-green' : 'text-primary-red'}`}>
+                          {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                        </div>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="rounded-xl border-2 border-neutral-900 dark:border-dark-border shadow-te-brutal-sm hover:-translate-y-0.5 transition-transform"
+                          onClick={() => handleDeleteTransaction(transaction.id)}
+                          disabled={deletingId === transaction.id}
+                          aria-label="Delete transaction"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>

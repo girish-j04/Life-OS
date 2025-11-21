@@ -3,6 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight } from 'lucide-react';
+import logoLight from '@/assets/logo_light.png';
+import logoDark from '@/assets/logo_dark.png';
 
 export function Login() {
   const { signInWithGoogle } = useAuth();
@@ -35,14 +37,21 @@ export function Login() {
               transition={{ type: 'spring', bounce: 0.5, duration: 0.8 }}
               className="inline-block"
             >
-              <div className="bg-gradient-to-br from-primary-orange to-primary-purple p-6 rounded-3xl border-4 border-neutral-900 dark:border-dark-border shadow-te-brutal">
-                <Sparkles className="h-12 w-12 text-white" />
+              <div className="bg-white dark:bg-dark-surface p-4 rounded-3xl border-4 border-neutral-900 dark:border-dark-border shadow-te-brutal">
+                <img
+                  src={logoLight}
+                  alt="LifeOS logo"
+                  className="h-16 w-auto md:h-20 block dark:hidden"
+                />
+                <img
+                  src={logoDark}
+                  alt="LifeOS logo"
+                  className="h-16 w-auto md:h-20 hidden dark:block"
+                />
               </div>
             </motion.div>
             <div>
-              <h1 className="text-5xl font-display font-bold text-neutral-900 dark:text-dark-text mb-2">
-                LifeOS
-              </h1>
+              <h1 className="sr-only">LifeOS</h1>
               <p className="text-xl text-neutral-600 dark:text-dark-subtext font-medium">
                 Your Life, Organized by AI
               </p>

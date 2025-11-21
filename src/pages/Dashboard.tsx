@@ -5,6 +5,8 @@ import { storage } from '@/lib/storage';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import logoLight from '@/assets/logo_light.png';
+import logoDark from '@/assets/logo_dark.png';
 import {
   Zap,
   Target,
@@ -89,21 +91,25 @@ export function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between"
         >
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-5xl md:text-7xl font-logo font-extrabold tracking-tight text-neutral-900 dark:text-dark-text">
-                Life
-              </h1>
-              <div className="relative">
-                <span className="text-5xl md:text-7xl font-logo font-extrabold tracking-tight text-primary-orange">
-                  OS
-                </span>
-                <div className="absolute -bottom-1 left-0 right-0 h-1 bg-primary-orange rounded-full" />
-              </div>
+          <div className="flex items-center gap-4">
+            <div className="bg-white dark:bg-dark-surface border-4 border-neutral-900 dark:border-dark-border rounded-2xl shadow-te-brutal-sm p-3">
+              <img
+                src={logoLight}
+                alt="LifeOS logo"
+                className="h-12 md:h-16 w-auto block dark:hidden"
+              />
+              <img
+                src={logoDark}
+                alt="LifeOS logo"
+                className="h-12 md:h-16 w-auto hidden dark:block"
+              />
             </div>
-            <p className="text-neutral-500 dark:text-dark-subtext font-mono text-sm mt-2 tracking-wide">
-              {format(new Date(), 'EEE, MMM d yyyy').toUpperCase()}
-            </p>
+            <div className="flex flex-col">
+              <span className="sr-only">LifeOS</span>
+              <p className="text-neutral-500 dark:text-dark-subtext font-mono text-sm tracking-wide">
+                {format(new Date(), 'EEE, MMM d yyyy').toUpperCase()}
+              </p>
+            </div>
           </div>
           <DarkModeToggle />
         </motion.div>
