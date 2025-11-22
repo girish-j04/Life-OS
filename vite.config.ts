@@ -9,25 +9,26 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'icons/*.png'],
+      injectRegister: 'auto',
+      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'LifeOS',
+        name: 'LifeOS - Your Life, Organized by AI',
         short_name: 'LifeOS',
-        description: 'Your AI-Powered Personal Operating System',
+        description: 'AI-powered personal productivity system with tasks, events, notes, and finance tracking',
         start_url: '/',
         display: 'standalone',
-        background_color: '#1e1e2e',
-        theme_color: '#cba6f7',
+        background_color: '#ffffff',
+        theme_color: '#f97316',
         orientation: 'portrait',
         icons: [
           {
-            src: '/icons/icon-192x192.png',
+            src: '/icon-192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any maskable',
           },
           {
-            src: '/icons/icon-512x512.png',
+            src: '/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',
@@ -36,19 +37,42 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Increase the maximum size limit for caching
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/generativelanguage\.googleapis\.com\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'gemini-api',
+              networkTimeoutSeconds: 10,
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24,
               },
             },
           },
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'supabase-api',
+              networkTimeoutSeconds: 10,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60, // 1 hour
+              },
+            },
+          },
         ],
+        // Clean up old caches
+        cleanupOutdatedCaches: true,
+        // Skip waiting to activate new service worker immediately
+        skipWaiting: true,
+        clientsClaim: true,
+      },
+      devOptions: {
+        enabled: false, // Disable SW in dev mode to avoid conflicts
       },
     }),
   ],
