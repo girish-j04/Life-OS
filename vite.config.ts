@@ -39,6 +39,8 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         // Increase the maximum size limit for caching
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB
+        // Exclude auth-related URLs from being cached or precached
+        navigateFallbackDenylist: [/^\/auth\/callback/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/generativelanguage\.googleapis\.com\/.*/i,
@@ -50,6 +52,13 @@ export default defineConfig({
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24,
               },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/auth\/.*/i,
+            handler: 'NetworkOnly',
+            options: {
+              cacheName: 'supabase-auth',
             },
           },
           {
